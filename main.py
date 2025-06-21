@@ -44,9 +44,6 @@ def get_todos(db: Session = Depends(get_db)):
 
 @app.get("/todos/{todo_id}", response_model=Todoresponse)
 def get_todo(todo_id: int, db: Session = Depends(get_db)):
-    # for index, todo in enumerate(todos):
-    #     if todo.id == todo_id:
-    #         return todo
     todo = db.query(TodoModel).filter(TodoModel.id == todo_id)
     if todo is None:
         raise HTTPException(status_code=404, detail="Todo not found")
@@ -60,23 +57,27 @@ def create_todo(todo: TodoBase, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_todo)
     return db_todo
+#db.refresh(db_todo) ensures the object in Python is updated with the latest data from the database, including any database-generated values like id.
 
 @app.delete("/todos/{todo_id}", response_model=Todoresponse)
 def delete_todo(todo_id: int, db: Session = Depends(get_db)):
-    # for index, todo in enumerate(todos):
-    #     if todo.id == todo_id:
-    #         todos.remove(todo)
-    #         return {"Message": "Deleted successfully"}
-    # raise HTTPException(status_code=404, detail="Not Found")
     todo = db.query(TodoModel).filter(TodoModel.id == todo_id).first()
     db.delete(todo)
     db.commit()
     return todo
 
 @app.put("/todos/{todo_id}")
-def update_todo(todo_id: int, updated_todo: TodoCreate):  # Use TodoCreate or Todoupdate
-    for index, todo in enumerate(todos):
-        if todo["id"] == todo_id:
-            todos[index] = updated_todo.dict()
-            return {"message": "Todo updated successfully", "todo": todos[index]}
-    return {"error": "Todo not found"}
+def update_todo(todo_id: int, updated_todo: Todoupdate, db: Session = Depends(get_db)):
+    todo = db.query(TodoModel).filter(TodoModel.id == todo_id).first()
+    
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    
+    todo.title = update_todo.title
+    todo.description = update_todo.description
+    todo.completed = update_todo.completed
+    
+    db.commit()
+    db.refresh(todo)
+    
+    return todo # Use TodoCreate or Todoupdate
