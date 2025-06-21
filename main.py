@@ -54,9 +54,6 @@ def get_todo(todo_id: int, db: Session = Depends(get_db)):
     return todo.first()
 
 @app.post("/todos", response_model=Todoresponse)
-# def create_todo(todo: TodoBase):
-#     todos.append(todo)
-#     return todos[-1]
 def create_todo(todo: TodoBase, db: Session = Depends(get_db)):
     db_todo = TodoModel(title=todo.title, description=todo.description, completed=todo.completed)  # Use TodoCreate here
     db.add(db_todo)
