@@ -28,11 +28,10 @@ class Todoupdate(TodoBase):  # Used for updating an existing Todo
 class Todoresponse(TodoBase):
     id: int
 
-    class Config:
-        from_attributes = True  # Change from 'orm_mode' to 'from_attributes' for Pydantic V2
-
+    class Config: #it is class to define configurations/settings for a pydantic model.
+        from_attributes = True  #ensures that Pydantic will automatically map the attributes from the SQLAlchemy model to the Pydantic model when creating a response for validation and serialization.
 def get_db():
-    db = Sessionlocal()
+    db = Sessionlocal() #session creating and handling
     try:
         yield db
     finally:
